@@ -220,7 +220,7 @@ public abstract class SparkDatabaseRepository implements DatabaseRepository {
                                 "timestampB", "positionA", "positionB"))
                 .groupBy("eventA", "eventB")
                 .agg(functions.collect_list("indexPair").alias("indexPairs"))
-                .select("traceId", "events");
+                .select("eventA", "eventB", "indexPairs");
 
         // Convert DataFrame to Map<String, List<Event>>
         Map<EventTypes, List<IndexPair>> eventsMap = groupedDf
@@ -235,10 +235,10 @@ public abstract class SparkDatabaseRepository implements DatabaseRepository {
                                             eventRow.getString(0),
                                             eventRow.getString(1),
                                             eventRow.getString(2),
-                                            eventRow.getString(3),
-                                            eventRow.getString(4),
-                                            eventRow.getInt(5),
-                                            eventRow.getInt(6)
+                                            eventRow.isNullAt(3) ? "" : eventRow.getTimestamp(3).toString(),
+                                            eventRow.isNullAt(4) ? "" : eventRow.getTimestamp(4).toString(),
+                                            eventRow.isNullAt(5) ? 0 : eventRow.getInt(5),
+                                            eventRow.isNullAt(6) ? 0 : eventRow.getInt(6)
                                     ))
                                     .collect(Collectors.toList());
                         }
